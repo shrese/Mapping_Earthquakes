@@ -1,30 +1,6 @@
 // Add console.log to check to see if our code is working.
 console.log("working");
 
-// Create the map object with a center and zoom level.
-let map = L.map('mapid').setView([40.7, -94.5], 4);
-
-// Coordinates for each point to be used in the polyline.  Create an airline route from SFO to John F. 
-// Kennedy International Airport (JFK) with two stops, Austin-Bergstrom International Airport (AUS) and Toronto Pearson International Airport (YYZ).
-// Make the route a blue dashed line, with a weight of 4 and opacity of 0.5 on the light map.
-// bonus add an additional stop
-let line = [
-  [37.6213, -122.3790],
-  [33.5778, -101.8551],
-  [30.1899, -97.6686],
-  [43.6835, -79.6149],
-  [40.6413, -73.7781]
-];
-
-// Create a polyline using the line coordinates and make the line red.
-L.polyline(line, {
-  color: "mediumBlue",
-  dashArray: '4, 4',
-  dashOffset: "0",
-  weight: 4,
-  opacity: 0.5
-}).addTo(map);
-
 // We create the tile layer that will be the background of our map.
 let streets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
   attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -53,10 +29,47 @@ let light = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles
   accessToken: API_KEY
 });
 
-// darkmap.addTo(map);
+// Change to night map.
+let night = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/navigation-night-v1/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+  attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
+  maxZoom: 18,
+  accessToken: API_KEY
+});
 
-// streets.addTo(map);
 
-// satellite.addTo(map);
+// Create a base layer that holds both maps.
+let baseMaps = {
+  Street: streets,
+  Night: night
+};
 
-light.addTo(map);
+// Create the map object with center, zoom level and default layer.
+let map = L.map('mapid', {
+  center: [44.0, -80.0],
+  zoom: 2,
+  layers: [streets]
+})
+
+// Pass our map layers into our layers control and add the layers control to the map.
+L.control.layers(baseMaps).addTo(map);
+
+
+// Accessing the airport GeoJSON URL
+let torontoData = "data/torontoRoutes.json";
+
+// create a style for the lines.
+let myStyle = {
+  color: "#ffffa1",
+  weight: 2
+}
+// Grabbing our GeoJSON data.
+d3.json(torontoData).then(function(data) {
+  console.log(data);
+  // Creating a GeoJSON layer with the retrieved data.
+  L.geoJson(data, {
+    style: myStyle,
+      onEachFeature: function(feature, layer) {
+          layer.bindPopup("<h2>" + "Airport Code: " + feature.properties.airline + "</h2>" + "<hr>" + "<h3>" + "Destination: " + feature.properties.dst + "</h3>");
+      }
+  }).addTo(map);
+});
