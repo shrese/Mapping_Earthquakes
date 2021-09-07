@@ -5,7 +5,7 @@ For this challenge and lesson, we learned how to build maps for websites using L
     * streets
     * satellite
     * grey scale
-* Visualization for the size of the earthquakes in both color and size of the marker.
+* Visualization for the size of the earthquakes in both color and size of the marker
 * A legend for the magnitude of the earthquakes
 * Three different options for mapping earthquakes
     * All earthquakes with their magnitude
